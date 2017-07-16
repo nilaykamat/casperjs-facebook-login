@@ -16,13 +16,12 @@ var password = casper.cli.get('password');
 
 var loginUrl = 'https://www.facebook.com/';
 var wallUrl = loginUrl + username.split('@')[0];  // Assuming the email id is your facebook page vanity url.
-
 casper.start().thenOpen(loginUrl, function() {
+	console.log(username);
     console.log("Facebook website opened");
 });
 
 casper.then(function(){
-	console.log(username);
 	this.evaluate(function(username, password){
         document.getElementById("email").value = username;
 		document.getElementById("pass").value = password;
@@ -38,7 +37,8 @@ casper.then(function(){
 		console.log("Logged In Successfully");
 	}, function fail () {
 		console.log("did not Log In");
-	}, 1000); // timeout limit in milliseconds
+		this.capture('login.png');
+	}, 10000); // timeout limit in milliseconds
 });
 
 casper.thenOpen(wallUrl, function(){
@@ -49,8 +49,21 @@ casper.thenOpen(wallUrl, function(){
 		console.log("did not redirect");
 	}, 1000);
 });
+
+casper.then(function(){
+	// Do whatever you want to do on the page using vanilla JS;
+	var image = this.evaluate(function(){
+		var imageSrc = document.querySelectorAll('img[class="coverPhotoImg photo img"]')[0].src;
+
+		//friendlistselect0r document.querySelectorAll('div[data-testid="friend_list_item"]')/
+		return imageSrc;
+	});
+	console.log(image);
+	this.download(image, 'image.jpg');
+})
 casper.on('resource.requested', function(requestData, resource) {
     // console.log(decodeURI(requestData.url));
+	
 });
 
 casper.run();
