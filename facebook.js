@@ -10,14 +10,14 @@ var casper = require("casper").create({
     }
 });
 var utils = require("utils");
+var config = require("./config.json");
 
 var username = casper.cli.get('username');
 var password = casper.cli.get('password');
 
-var loginUrl = 'https://www.facebook.com/';
-var eventsUrl = 'https://www.facebook.com/events/birthdays/';
-var wallUrl = loginUrl + username.split('@')[0];  // Assuming the email id is your facebook page vanity url.
-casper.start().thenOpen(loginUrl, function() {
+
+var wallUrl = config['urls']['loginUrl'] + username.split('@')[0];  // Assuming the email id is your facebook page vanity url.
+casper.start().thenOpen(config['urls']['loginUrl'], function() {
 	console.log(username);
     console.log("Facebook website opened");
 });
@@ -63,7 +63,7 @@ casper.then(function(){
 	this.download(image, 'image.jpg');
 });
 
-casper.thenOpen(eventsUrl, function(){
+casper.thenOpen(config['urls']['eventsUrl'], function(){
 	this.evaluate(function(){
 		var birthdays = document.querySelectorAll('div[class="_4-u2 _tzh _fbBirthdays__todayCard _4-u8"] .enter_submit');
 		for(var i = 0; i < birthdays.length; i++){
