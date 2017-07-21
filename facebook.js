@@ -15,6 +15,7 @@ var username = casper.cli.get('username');
 var password = casper.cli.get('password');
 
 var loginUrl = 'https://www.facebook.com/';
+var eventsUrl = 'https://www.facebook.com/events/birthdays/';
 var wallUrl = loginUrl + username.split('@')[0];  // Assuming the email id is your facebook page vanity url.
 casper.start().thenOpen(loginUrl, function() {
 	console.log(username);
@@ -60,10 +61,29 @@ casper.then(function(){
 	});
 	console.log(image);
 	this.download(image, 'image.jpg');
-})
+});
+
+casper.thenOpen(eventsUrl, function(){
+	this.evaluate(function(){
+		var birthdays = document.querySelectorAll('div[class="_4-u2 _tzh _fbBirthdays__todayCard _4-u8"] .enter_submit');
+		for(var i = 0; i < birthdays.length; i++){
+			birthdays[i].value = "Happy Birthday !!";			
+			//webkit - initKeyboardEvent
+			var ev = document.createEvent('KeyboardEvent');
+			ev.initKeyEvent('keydown', true, true, window, false, false, false, false, 13, 0);  // 13 = Enter`
+			birthdays[i].dispatchEvent(ev);
+
+		}
+	});
+	this.capture('birthdays.png');
+});
+
+
 casper.on('resource.requested', function(requestData, resource) {
     // console.log(decodeURI(requestData.url));
 	
 });
-
+casper.on('remote.message', function(message) {
+    // this.echo('Message :: ' + message);
+});
 casper.run();
